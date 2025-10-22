@@ -81,19 +81,18 @@ def webhook():
 
             preview_url = result["secure_url"]
 
-            # 💬 Gunakan mode HTML biar aman dari karakter spesial
-            text = f"✅ Gambar <b>{public_id.upper()}</b> berhasil diperbarui!<br>📎 <a href='{preview_url}'>Lihat Gambar</a>"
+            # 💬 Gunakan mode Markdown aman (URL diapit tanda < > supaya tidak error)
+        text = f"✅ Harga *{public_id.upper()}* telah diperbarui!\n\n📎 <{preview_url}>"
 
-            response = requests.get(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                params={
-                    "chat_id": chat_id,
-                    "text": text,
-                    "parse_mode": "HTML",
-                    "disable_web_page_preview": False
-                }
+        response = requests.get(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            params={
+                "chat_id": chat_id,
+                "text": text,
+                "parse_mode": "Markdown",
+                "disable_web_page_preview": False
+            }
             )
-
             logging.info(f"📤 Respon Telegram: {response.text}")
             logging.info(f"✅ Upload berhasil untuk {public_id}")
 
@@ -111,3 +110,4 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
