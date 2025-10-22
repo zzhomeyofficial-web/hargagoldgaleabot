@@ -45,7 +45,7 @@ def webhook():
         if "antam" in caption:
             public_id = "antam"
         elif "ubs" in caption:
-            public_id = "ubs"
+            public_id = "silver"
         elif "eoa" in caption:
             public_id = "eoa"
         else:
@@ -70,3 +70,4 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
