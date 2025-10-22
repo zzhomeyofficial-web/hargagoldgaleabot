@@ -35,14 +35,24 @@ def home():
 def webhook():
     data = request.json
 
-    if "message" in data and "photo" in data["message"]:
+    # 🔹 Sekarang dukung photo dan document
+    if "message" in data and ("photo" in data["message"] or "document" in data["message"]):
         try:
-            caption = data["message"].get("caption", "").lower()
-            photos = data["message"]["photo"]
-            file_id = photos[-1]["file_id"]
+            # Ambil caption, bersihkan & ubah huruf kecil
+            caption = data["message"].get("caption", "").strip().lower()
             chat_id = data["message"]["chat"]["id"]
+            logging.info(f"📩 Caption diterima: '{caption}'")
 
-            logging.info(f"📩 Caption diterima: {caption}")
+            # Ambil file_id tergantung jenis kiriman
+            if "photo" in data["message"]:
+                file_id = data["message"]["photo"][-1]["file_id"]
+                logging.info("📷 Jenis file: photo")
+            elif "document" in data["message"]:
+                file_id = data["message"]["document"]["file_id"]
+                logging.info("📄 Jenis file: document")
+            else:
+                logging.warning("⚠️ Tidak ditemukan file_id (bukan foto/file).")
+                return "OK", 200
 
             # 🔗 Ambil file dari Telegram
             file_info = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file_id}").json()
@@ -70,14 +80,21 @@ def webhook():
             )
 
             preview_url = result["secure_url"]
-            text = f"✅ Gambar *{public_id.upper()}* berhasil diperbarui!\n\n📎 {preview_url}"
 
-            # 💬 Kirim balasan ke Telegram
-            requests.get(
+            # 💬 Gunakan mode HTML biar aman dari karakter spesial
+            text = f"✅ Gambar <b>{public_id.upper()}</b> berhasil diperbarui!<br>📎 <a href='{preview_url}'>Lihat Gambar</a>"
+
+            response = requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                params={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
+                params={
+                    "chat_id": chat_id,
+                    "text": text,
+                    "parse_mode": "HTML",
+                    "disable_web_page_preview": False
+                }
             )
 
+            logging.info(f"📤 Respon Telegram: {response.text}")
             logging.info(f"✅ Upload berhasil untuk {public_id}")
 
         except Exception as e:
@@ -90,6 +107,7 @@ def webhook():
             )
 
     return "OK", 200
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
