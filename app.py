@@ -58,6 +58,14 @@ def webhook():
                 logging.warning("⚠️ Tidak ada file_id ditemukan.")
                 return "OK", 200
 
+            # Ambil file dari Telegram
+            file_info = requests.get(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file_id}"
+            ).json()
+            file_path = file_info["result"]["file_path"]
+            file_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+
+            
             # 🏷️ Tentukan nama file berdasarkan caption
             if "antam" in caption:
                 public_id = "antam"
@@ -119,4 +127,5 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
