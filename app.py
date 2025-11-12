@@ -95,7 +95,7 @@ def webhook():
             logging.info(f"✅ Upload berhasil: {preview_url}")
 
             # 💬 Kirim balasan ke Telegram (Markdown aman)
-            text = f"✅ Harga *{public_id.upper()}* telah diperbarui!\n\n📎 <{preview_url}>"
+            text = f"✅ Harga *{public_id.upper()}* telah diperbarui!\n cek hasilnya di zzhomey.com/gold\n\n📎 <{preview_url}>"
 
             response = requests.get(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
@@ -127,5 +127,6 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
